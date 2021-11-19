@@ -160,19 +160,33 @@ class _HomescreenState extends State<Homescreen> {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.white),
               image: DecorationImage(
-                  image: FileImage(capturedImages), fit: BoxFit.cover),
+                  colorFilter: ColorFilter.mode(
+                      Colors.white.withOpacity(0.6), BlendMode.dstATop),
+                  image: FileImage(capturedImages),
+                  fit: BoxFit.cover),
             ),
           ),
         ),
-        Column(children: <Widget>[
-          Center(
-              child: CircularProgressIndicator(
-            backgroundColor: Colors.grey,
-            color: Colors.purple,
-            strokeWidth: 10,
-          )),
-          Center(child: Text('Classifying'))
-        ]),
+        Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                  child: CircularProgressIndicator(
+                backgroundColor: Colors.grey,
+                color: kPrimaryColor,
+                strokeWidth: 10,
+              )),
+              SizedBox(
+                height: 20.0,
+              ),
+              Center(
+                  child: Text(
+                'Proses Klasifikasi',
+                style: TextStyle(
+                    color: Colors.white60, fontWeight: FontWeight.bold),
+              ))
+            ]),
         Padding(
             padding: EdgeInsets.all(8.0),
             child: ElevatedButton(

@@ -73,7 +73,13 @@ class _HomescreenState extends State<Homescreen> {
                   child: Column(
                     children: <Widget>[
                       IconCard(icon: "assets/images/brin.png"),
-                      IconCard(icon: "assets/images/kementan.png")
+                      Text("PR Informatika",
+                          style: TextStyle(
+                              color: kTextColor, fontWeight: FontWeight.bold)),
+                      IconCard(icon: "assets/images/kementan.png"),
+                      Text("BALITSA",
+                          style: TextStyle(
+                              color: kTextColor, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

@@ -12,7 +12,8 @@ class IconCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Container(
-      margin: EdgeInsets.symmetric(vertical: size.height * 0.03),
+      //margin: EdgeInsets.symmetric(vertical: size.height * 0.03),
+      margin: EdgeInsets.symmetric(vertical: 12.0),
       padding: EdgeInsets.all(kDefaultPadding / 2),
       height: 62,
       width: 62,

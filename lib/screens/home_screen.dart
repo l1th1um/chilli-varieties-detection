@@ -71,7 +71,7 @@ class _HomescreenState extends State<Homescreen> {
               children: <Widget>[
                 Expanded(
                   child: Column(
-                    children: <Widget>[
+                    children: const <Widget>[
                       IconCard(icon: "assets/images/brin.png"),
                       Text("PR Informatika",
                           style: TextStyle(
@@ -87,13 +87,13 @@ class _HomescreenState extends State<Homescreen> {
                   width: size.width * 0.6,
                   height: size.height * 0.7,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(63),
                       bottomLeft: Radius.circular(63),
                     ),
                     boxShadow: [
                       BoxShadow(
-                          offset: Offset(0, 10),
+                          offset: const Offset(0, 10),
                           blurRadius: 60,
                           color: kPrimaryColor.withOpacity(0.29))
                     ],
@@ -118,7 +118,7 @@ class _HomescreenState extends State<Homescreen> {
                         text: "Tanjung\n",
                         style: Theme.of(context).textTheme.headline4!.copyWith(
                             color: kTextColor, fontWeight: FontWeight.bold)),
-                    TextSpan(
+                    const TextSpan(
                         text: "95%\n",
                         style: TextStyle(
                             fontSize: 20,
@@ -133,9 +133,9 @@ class _HomescreenState extends State<Homescreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             await _initializeControllerFuture;
-            var camera_value = _controller.value;
+            /*var camera_value = _controller.value;
 
-            /*
+            
             print("Its Here");
             print(size.width);
             print(size.height);
@@ -158,7 +158,7 @@ class _HomescreenState extends State<Homescreen> {
     if (isCaptured) {
       return Stack(alignment: Alignment.bottomCenter, children: <Widget>[
         ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             //topLeft: Radius.circular(20.0),
             bottomLeft: Radius.circular(20.0),
           ),
@@ -176,12 +176,16 @@ class _HomescreenState extends State<Homescreen> {
         Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
+            children: const <Widget>[
               Center(
-                  child: CircularProgressIndicator(
-                backgroundColor: Colors.grey,
-                color: kPrimaryColor,
-                strokeWidth: 10,
+                  child: SizedBox(
+                width: 64,
+                height: 64,
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.grey,
+                  color: kPrimaryColor,
+                  strokeWidth: 15,
+                ),
               )),
               SizedBox(
                 height: 20.0,
@@ -194,7 +198,7 @@ class _HomescreenState extends State<Homescreen> {
               ))
             ]),
         Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -202,11 +206,11 @@ class _HomescreenState extends State<Homescreen> {
                     //print(xFile.path);
                   });
                 },
-                child: new Text("Reset"))),
+                child: const Text("Reset"))),
       ]);
     } else {
       return ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           //topLeft: Radius.circular(20.0),
           bottomLeft: Radius.circular(20.0),
         ),
@@ -224,7 +228,7 @@ class _HomescreenState extends State<Homescreen> {
                             child: Container(
                           color: Colors.white,
                         )),
-                        Image(
+                        const Image(
                             image: AssetImage('assets/images/leaf_white.png')),
                         Expanded(
                             child: Container(

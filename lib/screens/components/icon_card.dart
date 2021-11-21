@@ -10,11 +10,11 @@ class IconCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    //Size size = MediaQuery.of(context).size;
     return Container(
       //margin: EdgeInsets.symmetric(vertical: size.height * 0.03),
-      margin: EdgeInsets.symmetric(vertical: 12.0),
-      padding: EdgeInsets.all(kDefaultPadding / 2),
+      margin: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.all(kDefaultPadding / 2),
       height: 62,
       width: 62,
       decoration: BoxDecoration(
@@ -22,18 +22,18 @@ class IconCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, 15),
+            offset: const Offset(0, 15),
             blurRadius: 22,
             color: kPrimaryColor.withOpacity(0.22),
           ),
-          BoxShadow(
+          const BoxShadow(
             offset: Offset(-15, -15),
             blurRadius: 20,
             color: Colors.white,
           ),
         ],
       ),
-      child: Image(image: AssetImage(this.icon)),
+      child: Image(image: AssetImage(icon)),
     );
   }
 }

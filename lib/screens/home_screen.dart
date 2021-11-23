@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,9 +5,8 @@ import 'package:camera/camera.dart';
 import 'package:idecabe/constants.dart';
 import 'package:idecabe/screens/components/icon_card.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
+import 'package:image/image.dart' as dimage;
 
 class Homescreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -139,15 +137,21 @@ class _HomescreenState extends State<Homescreen> {
 
             var xFile = await _controller.takePicture();
             String filename =
-                "idecabe_${DateTime.now().toString().replaceAll(RegExp(r'[-\s\:\.]'), '').substring(2, 14)}.jpg";
-            newImage = await File(xFile.path)
-                .copy(path.join(widget.directory.path, filename));
+                "idecabe_${DateTime.now().toString().replaceAll(RegExp(r'[-\s\:\.]'), '').substring(2, 14)}";
+
+            dimage.Image? sourceImage =
+                dimage.decodeImage(File(xFile.path).readAsBytesSync());
+            dimage.Image cropImage =
+                dimage.copyCrop(sourceImage!, 200, 275, 340, 715);
+
+            capturedImages =
+                File(path.join(widget.directory.path, filename + '.jpg'));
+            capturedImages
+                .writeAsBytesSync(dimage.encodePng(cropImage, level: 6));
 
             setState(() {
-              print(isCaptured);
               isCaptured = true;
-              capturedImages = File(path.join(widget.directory.path, filename));
-              print(capturedImages.runtimeType);
+              capturedImages = capturedImages;
             });
           },
           child: const Icon(Icons.camera),
@@ -204,8 +208,6 @@ class _HomescreenState extends State<Homescreen> {
                 onPressed: () {
                   setState(() {
                     isCaptured = false;
-
-                    //print(xFile.path);
                   });
                 },
                 child: const Text("Reset"))),
@@ -224,20 +226,10 @@ class _HomescreenState extends State<Homescreen> {
               if (snapshot.connectionState == ConnectionState.done) {
                 // If the Future is complete, display the preview.
                 return CameraPreview(_controller,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                            child: Container(
-                          color: Colors.white,
-                        )),
-                        const Image(
-                            image: AssetImage('assets/images/leaf_white.png')),
-                        Expanded(
-                            child: Container(
-                          color: Colors.white,
-                        )),
-                      ],
-                    ));
+                    child: const Expanded(
+                        child: Image(
+                            fit: BoxFit.fill,
+                            image: AssetImage('assets/images/leaf_bg.png'))));
               } else {
                 // Otherwise, display a loading indicator.
                 return const Center(child: CircularProgressIndicator());

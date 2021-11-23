@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,10 +6,16 @@ import 'package:camera/camera.dart';
 import 'package:idecabe/constants.dart';
 import 'package:idecabe/screens/components/icon_card.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path/path.dart' as path;
 
 class Homescreen extends StatefulWidget {
   final List<CameraDescription> cameras;
-  const Homescreen({Key? key, required this.cameras}) : super(key: key);
+  final Directory directory;
+
+  const Homescreen({Key? key, required this.cameras, required this.directory})
+      : super(key: key);
 
   @override
   State<Homescreen> createState() => _HomescreenState();
@@ -31,15 +38,17 @@ class _HomescreenState extends State<Homescreen> {
       _initializeControllerFuture; //Future to wait until camera initializes
   int selectedCamera = 0;
   File capturedImages = File('');
+  File newImage = File('');
   bool isCaptured = false;
   bool isClassifying = false;
+  dynamic res;
 
   initializeCamera(int cameraIndex) async {
     _controller = CameraController(
       // Get a specific camera from the list of available cameras.
       widget.cameras[cameraIndex],
       // Define the resolution to use.
-      ResolutionPreset.medium,
+      ResolutionPreset.high,
     );
     // Next, initialize the controller. This returns a Future.
     _initializeControllerFuture = _controller.initialize();
@@ -97,12 +106,6 @@ class _HomescreenState extends State<Homescreen> {
                           blurRadius: 60,
                           color: kPrimaryColor.withOpacity(0.29))
                     ],
-                    /*
-                  image: DecorationImage(
-                      alignment: Alignment.centerLeft,
-                      fit: BoxFit.cover,
-                      image: AssetImage("assets/images/chilli_leaf.jpg")
-                      )*/
                   ),
                   child: captureOrPreview(),
                 ),
@@ -133,20 +136,18 @@ class _HomescreenState extends State<Homescreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             await _initializeControllerFuture;
-            /*var camera_value = _controller.value;
-
-            
-            print("Its Here");
-            print(size.width);
-            print(size.height);
-            print(camera_value);
-            */
 
             var xFile = await _controller.takePicture();
+            String filename =
+                "idecabe_${DateTime.now().toString().replaceAll(RegExp(r'[-\s\:\.]'), '').substring(2, 14)}.jpg";
+            newImage = await File(xFile.path)
+                .copy(path.join(widget.directory.path, filename));
+
             setState(() {
-              capturedImages = File(xFile.path);
+              print(isCaptured);
               isCaptured = true;
-              //print(xFile.path);
+              capturedImages = File(path.join(widget.directory.path, filename));
+              print(capturedImages.runtimeType);
             });
           },
           child: const Icon(Icons.camera),
@@ -203,6 +204,7 @@ class _HomescreenState extends State<Homescreen> {
                 onPressed: () {
                   setState(() {
                     isCaptured = false;
+
                     //print(xFile.path);
                   });
                 },

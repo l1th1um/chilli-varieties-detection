@@ -7,6 +7,9 @@ import 'package:idecabe/screens/components/icon_card.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as dimage;
+import 'package:tflite/tflite.dart';
+import 'package:opencv/opencv.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Homescreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -23,6 +26,7 @@ class _HomescreenState extends State<Homescreen> {
   @override
   void initState() {
     initializeCamera(selectedCamera); //Initially selectedCamera = 0
+    loadModel();
     super.initState();
 
     SystemChrome.setPreferredOrientations([
@@ -38,8 +42,10 @@ class _HomescreenState extends State<Homescreen> {
   File capturedImages = File('');
   File newImage = File('');
   bool isCaptured = false;
-  bool isClassifying = false;
+  bool isDone = false;
   dynamic res;
+  String varieties = '';
+  String pred_confidence = '';
 
   initializeCamera(int cameraIndex) async {
     _controller = CameraController(
@@ -50,6 +56,13 @@ class _HomescreenState extends State<Homescreen> {
     );
     // Next, initialize the controller. This returns a Future.
     _initializeControllerFuture = _controller.initialize();
+  }
+
+  Future loadModel() async {
+    await Tflite.loadModel(
+      model: 'assets/models/inception3.tflite',
+      labels: 'assets/models/labels.txt',
+    );
   }
 
   @override
@@ -116,12 +129,12 @@ class _HomescreenState extends State<Homescreen> {
                   RichText(
                       text: TextSpan(children: [
                     TextSpan(
-                        text: "Tanjung\n",
+                        text: varieties,
                         style: Theme.of(context).textTheme.headline4!.copyWith(
                             color: kTextColor, fontWeight: FontWeight.bold)),
-                    const TextSpan(
-                        text: "95%\n",
-                        style: TextStyle(
+                    TextSpan(
+                        text: pred_confidence,
+                        style: const TextStyle(
                             fontSize: 20,
                             color: kPrimaryColor,
                             fontWeight: FontWeight.w600)),
@@ -149,6 +162,16 @@ class _HomescreenState extends State<Homescreen> {
             capturedImages
                 .writeAsBytesSync(dimage.encodePng(cropImage, level: 6));
 
+            res = await ImgProc.resize(await capturedImages.readAsBytes(),
+                [224, 224], 0, 0, ImgProc.interCubic);
+
+            String tempPath = (await getTemporaryDirectory()).path;
+            File file = File('$tempPath/cabe.jpg');
+            await file.writeAsBytes(
+                res.buffer.asUint8List(res.offsetInBytes, res.lengthInBytes));
+
+            predict(file);
+
             setState(() {
               isCaptured = true;
               capturedImages = capturedImages;
@@ -157,6 +180,26 @@ class _HomescreenState extends State<Homescreen> {
           child: const Icon(Icons.camera),
           backgroundColor: Colors.green,
         ));
+  }
+
+  predict(File image) async {
+    List? output = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 2,
+      threshold: 0.5,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+
+    print(output);
+    var confidence = (double.parse(output![0]['confidence'].toString()) * 100)
+        .toStringAsFixed(2);
+
+    setState(() {
+      varieties = output![0]['label'] + "\n";
+      pred_confidence = confidence + "%\n";
+      isDone = true;
+    });
   }
 
   Widget captureOrPreview() {
@@ -178,36 +221,39 @@ class _HomescreenState extends State<Homescreen> {
             ),
           ),
         ),
-        Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const <Widget>[
-              Center(
-                  child: SizedBox(
-                width: 64,
-                height: 64,
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.grey,
-                  color: kPrimaryColor,
-                  strokeWidth: 15,
-                ),
-              )),
-              SizedBox(
-                height: 20.0,
-              ),
-              Center(
-                  child: Text(
-                'Proses Klasifikasi',
-                style: TextStyle(
-                    color: Colors.white60, fontWeight: FontWeight.bold),
-              ))
-            ]),
+        !isDone
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const <Widget>[
+                    Center(
+                        child: SizedBox(
+                      width: 64,
+                      height: 64,
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.grey,
+                        color: kPrimaryColor,
+                        strokeWidth: 15,
+                      ),
+                    )),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Center(
+                        child: Text(
+                      'Proses Klasifikasi',
+                      style: TextStyle(
+                          color: Colors.white60, fontWeight: FontWeight.bold),
+                    ))
+                  ])
+            : SizedBox(height: 0.0),
         Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
                 onPressed: () {
                   setState(() {
                     isCaptured = false;
+                    isDone = false;
                   });
                 },
                 child: const Text("Reset"))),

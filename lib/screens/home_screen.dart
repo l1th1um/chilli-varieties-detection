@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as dimage;
 import 'package:tflite/tflite.dart';
-import 'package:opencv/opencv.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Homescreen extends StatefulWidget {
@@ -162,13 +161,17 @@ class _HomescreenState extends State<Homescreen> {
             capturedImages
                 .writeAsBytesSync(dimage.encodePng(cropImage, level: 6));
 
-            res = await ImgProc.resize(await capturedImages.readAsBytes(),
+            /*res = await ImgProc.resize(await capturedImages.readAsBytes(),
                 [224, 224], 0, 0, ImgProc.interCubic);
+            */
+            res = dimage.copyResize(cropImage,
+                width: 224,
+                height: 224,
+                interpolation: dimage.Interpolation.cubic);
 
             String tempPath = (await getTemporaryDirectory()).path;
             File file = File('$tempPath/cabe.jpg');
-            await file.writeAsBytes(
-                res.buffer.asUint8List(res.offsetInBytes, res.lengthInBytes));
+            file.writeAsBytesSync(dimage.encodeJpg(res));
 
             predict(file);
 

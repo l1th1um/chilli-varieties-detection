@@ -2,7 +2,7 @@
     package="com.arozie.idecabe">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
    <application
-        android:label="idecabe"
+        android:label="IdeCabe"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
         <activity
